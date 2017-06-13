@@ -1,5 +1,7 @@
 ## era
 
+[![Travis CI Build Status](https://travis-ci.org/chbrown/era-clojure.svg?branch=master)](https://travis-ci.org/chbrown/era-clojure)
+[![Coverage Status](https://coveralls.io/repos/github/chbrown/era-clojure/badge.svg?branch=master)](https://coveralls.io/github/chbrown/era-clojure?branch=master)
 [![Clojars Project](https://img.shields.io/clojars/v/era.svg)](https://clojars.org/era)
 
 Cross-platform DateTime type coercion, parsing, and manipulation.
