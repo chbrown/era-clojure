@@ -23,9 +23,9 @@ it uses the `java.time.*` API (a.k.a. `JSR-310`), so Java 8 is required.
 ### Alternatives
 
 - `hara-time`
+  > "time as a clojure map"
   * [Documentation](http://docs.caudate.me/hara/hara-time.html)
   * [Source](https://github.com/zcaudate/hara)
-  > "time as a clojure map"
 
   JVM-only; uses Joda time for Java <8.
 - `clj-time`
