@@ -23,13 +23,15 @@ it uses the `java.time.*` API (a.k.a. `JSR-310`), so Java 8 is required.
 ### Alternatives
 
 - `hara-time`
-  [Documentation](http://docs.caudate.me/hara/hara-time.html)
-  [Source](https://github.com/zcaudate/hara)
+  * [Documentation](http://docs.caudate.me/hara/hara-time.html)
+  * [Source](https://github.com/zcaudate/hara)
   > "time as a clojure map"
+
   JVM-only; uses Joda time for Java <8.
 - `clj-time`
-  [Documentation](https://clj-time.github.io/clj-time/doc/index.html)
-  [Source](https://github.com/clj-time/clj-time)
+  * [Documentation](https://clj-time.github.io/clj-time/doc/index.html)
+  * [Source](https://github.com/clj-time/clj-time)
+
   JVM-only; depends on Joda time even with Java 8.
 
 
