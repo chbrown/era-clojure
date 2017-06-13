@@ -5,5 +5,5 @@ lein: 2.7.1
 env:
   - TZ=America/Chicago
 script:
-  - lein cloverage --coveralls
+  - lein with-profile test cloverage --coveralls
   - curl -F 'json_file=@target/coverage/coveralls.json' 'https://coveralls.io/api/v1/jobs'
