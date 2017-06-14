@@ -39,7 +39,7 @@
 
 (extend-protocol Coercions
   ;; from java.time.OffsetDateTime to ...
-  #?(:clj OffsetDateTime :cljs Date)
+  #?(:clj OffsetDateTime :cljs js/Date)
   (->OffsetDateTime [this] this) ; identity
   (->ZonedDateTime [this]
     #?(:clj (.toZonedDateTime this) :cljs this))

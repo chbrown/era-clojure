@@ -9,7 +9,7 @@
   ; maybe return unchanged if String?
   (when value
     #?(:clj  (.toString (core/->Instant value))
-       :cljs (.toISOString (core->OffsetDateTime value)))))
+       :cljs (.toISOString (core/->OffsetDateTime value)))))
 
 (def ^:private format-styles
   "CLJS separates date and time with a comma; JVM does not.
