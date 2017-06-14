@@ -87,7 +87,8 @@
     (->Date           [this] this)]) ; identity
 
   ;; from String to ...
-  String
+  #?(:clj  String
+     :cljs string)
   (->OffsetDateTime [this]
     #?(:clj  (OffsetDateTime/parse this)
        :cljs (js/Date. this)))
