@@ -54,9 +54,9 @@
   ([value] (locale value :medium))
   ([value style]
    {:pre [(contains? format-styles style)]}
-   (let [date (core/->OffsetDateTime value)
-         format-style (get format-styles style)]
-     #?(:clj (-> (DateTimeFormatter/ofLocalizedDateTime format-style)
-                 (.withZone (ZoneId/systemDefault))
-                 (.format date))
-        :cljs (.toLocaleString date "en-US" (clj->js format-style))))))
+   (when-let [date (core/->OffsetDateTime value)]
+     (let [format-style (get format-styles style)]
+       #?(:clj (-> (DateTimeFormatter/ofLocalizedDateTime format-style)
+                   (.withZone (ZoneId/systemDefault))
+                   (.format date))
+          :cljs (.toLocaleString date "en-US" (clj->js format-style)))))))
