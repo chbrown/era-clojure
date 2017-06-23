@@ -1,4 +1,4 @@
-(defproject era "0.2.0"
+(defproject era "0.2.1-SNAPSHOT"
   :description "Cross-platform time tools"
   :url "https://github.com/chbrown/era-clojure"
   :license {:name "Eclipse Public License"
