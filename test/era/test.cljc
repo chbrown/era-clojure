@@ -41,6 +41,22 @@
   (doseq [[_ coercion] coercions]
     (is (nil? (coercion nil)))))
 
+; add
+
+(deftest test-add
+  (testing "adding month to OffsetDateTime"
+    (is (era/inst= date (era/add (era/->OffsetDateTime "2001-01-03T04:05:06.007-00:00")
+                                 {:months 1}))))
+  (testing "adding numeric seconds to OffsetDateTime"
+    (is (era/inst= date (era/add (era/->OffsetDateTime "2001-02-03T04:05:01.007-00:00") 5))))
+  (testing "adding multiple components to OffsetDateTime"
+    (is (era/inst= date (era/add (era/->OffsetDateTime "1999-11-30T00:00:00.007-00:00")
+                                 {:seconds 6 :minutes 5 :hours 4 :days 3 :months 2 :years 1}))))
+  #?(:clj
+    (testing "adding TemporalAmount to OffsetDateTime"
+      (is (era/inst= date (era/add (era/->OffsetDateTime "2001-01-01T04:05:06.007-00:00")
+                                   (java.time.Period/of 0 1 2)))))))
+
 ;; era.format
 
 (def locales

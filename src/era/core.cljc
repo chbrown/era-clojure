@@ -9,7 +9,8 @@
   (:require [clojure.string :as str])
   #?(:clj (:import (java.util Date)
                    (java.sql Timestamp)
-                   (java.time Instant OffsetDateTime ZonedDateTime ZoneId ZoneOffset))))
+                   (java.time Instant OffsetDateTime ZonedDateTime ZoneId ZoneOffset)
+                   (java.time.temporal ChronoUnit TemporalAmount TemporalUnit))))
 
 (defn now
   "Return the current datetime as a OffsetDateTime on the JVM,
@@ -117,3 +118,75 @@
   "Compare each DateTime object in `values` after converting to Instants"
   [& values]
   (apply = (map ->Instant values)))
+
+(defprotocol Temporal
+  "Similar to the java.time.Temporal interface, this protocol defines a
+  manipulation on DateTime instances."
+  (add [datetime duration]
+    "Add `duration` to `datetime`.
+    The `duration` can be a number, signifying seconds (which is the SI unit for time),
+    or a sequence of 2-tuples of [duration-unit-type, numeric-value], e.g., a map,
+    with the following valid duration unit types:
+      :nanos :micros :millis :seconds :minutes :hours :half-days
+      :days :weeks :months :years :decades :centuries :millennia :eras :forever
+    These names are based on the java.time.temporal.ChronoUnit enum.
+    Each duration component is added left-to-right, and sometimes order matters;
+    e.g., (2001-02-28 + 1 day) + 1 month => 2001-04-01 ≠
+          (2001-02-28 + 1 month) + 1 day => 2001-03-29
+    On the JVM, `duration` can also be a TemporalAmount instance."))
+
+(def ^:private millis-per-unit
+  {:nanos                        1/1000000
+   :micros                       1/1000
+   :millis                       1
+   :seconds                   1000
+   :minutes                  60000
+   :hours                  3600000
+   :half-days             43200000
+   :days                  86400000
+   :weeks                604800000
+   :months              2629746000 ; approximation using years from below / 12
+   :years              31556952000 ; approximation using average days / year: 365 + 1/4 - 1/100 + 1/400 = 365.2425
+   :decades           315569520000
+   :centuries        3155695200000
+   :millennia       31556952000000
+   :eras      31556952000000000000
+   :forever   #?(:clj Double/POSITIVE_INFINITY :cljs js/Infinity)})
+
+#?(:clj
+  (def duration-unit-type->TemporalUnit
+    {:nanos     ChronoUnit/NANOS
+     :micros    ChronoUnit/MICROS
+     :millis    ChronoUnit/MILLIS
+     :seconds   ChronoUnit/SECONDS
+     :minutes   ChronoUnit/MINUTES
+     :hours     ChronoUnit/HOURS
+     :half-days ChronoUnit/HALF_DAYS
+     :days      ChronoUnit/DAYS
+     :weeks     ChronoUnit/WEEKS
+     :months    ChronoUnit/MONTHS
+     :years     ChronoUnit/YEARS
+     :decades   ChronoUnit/DECADES
+     :centuries ChronoUnit/CENTURIES
+     :millennia ChronoUnit/MILLENNIA
+     :eras      ChronoUnit/ERAS
+     :forever   ChronoUnit/FOREVER}))
+
+
+(extend-protocol Temporal
+  #?(:clj java.time.temporal.Temporal :cljs js/Date)
+  (add [this duration]
+    #?(:clj
+      (if (instance? TemporalAmount duration)
+        ; handle JVM special case where duration is a java.time.temporal.TemporalAmount
+        (.addTo ^TemporalAmount duration this)
+        ; if duration isn't a map assume it's numeric seconds
+        (let [duration (if (map? duration) duration {:seconds duration})]
+          (reduce (fn [date [type units]]
+                    (let [temporal-unit (get duration-unit-type->TemporalUnit type type)]
+                      (.addTo ^TemporalUnit temporal-unit date units))) this duration)))
+      :cljs
+      (let [duration (if (map? duration) duration {:seconds duration})]
+        (reduce (fn [date [type units]]
+                  (let [millis (* (get millis-per-unit type) units)]
+                    (js/Date. (+ (.getTime date) millis)))) this duration)))))
