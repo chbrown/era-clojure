@@ -136,8 +136,8 @@
     On the JVM, `duration` can also be a TemporalAmount instance."))
 
 (def ^:private millis-per-unit
-  {:nanos                        1/1000000
-   :micros                       1/1000
+  {:nanos                #?(:clj 1/1000000 :cljs 0.000001)
+   :micros               #?(:clj 1/1000    :cljs 0.001)
    :millis                       1
    :seconds                   1000
    :minutes                  60000
