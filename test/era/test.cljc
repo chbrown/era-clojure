@@ -9,20 +9,22 @@
   (is (not (nil? (era/now)))))
 
 (def coercions
-  {#?(:clj java.time.OffsetDateTime :cljs js/Date) era/->OffsetDateTime
-   #?(:clj java.time.ZonedDateTime  :cljs js/Date) era/->ZonedDateTime
-   #?(:clj java.time.Instant        :cljs js/Date) era/->Instant
-   #?(:clj java.sql.Timestamp       :cljs js/Date) era/->Timestamp
-   #?(:clj java.util.Date           :cljs js/Date) era/->Date})
+  "Pairs of [coercion type-that-coercion-should-return]"
+  {era/->OffsetDateTime #?(:clj java.time.OffsetDateTime :cljs js/Date)
+   era/->ZonedDateTime  #?(:clj java.time.ZonedDateTime  :cljs js/Date)
+   era/->Instant        #?(:clj java.time.Instant        :cljs js/Date)
+   era/->Timestamp      #?(:clj java.sql.Timestamp       :cljs js/Date)
+   era/->Date           #?(:clj java.util.Date           :cljs js/Date)})
 
 (def date #inst "2001-02-03T04:05:06.007Z")
 
 (def dates
-  (map #(% date) (vals coercions)))
+  (doseq [[coercion _] coercions]
+    (coercion date)))
 
 (deftest test-cross
   (doseq [date dates
-          [type coercion] coercions]
+          [coercion type] coercions]
     (is (instance? type (coercion date)))))
 
 (deftest test-strings
@@ -38,7 +40,7 @@
     (is (era/inst= date (era/->Date "2001-02-03T04:05:06.007Z")))))
 
 (deftest test-nils
-  (doseq [[_ coercion] coercions]
+  (doseq [[coercion _] coercions]
     (is (nil? (coercion nil)))))
 
 ; add
