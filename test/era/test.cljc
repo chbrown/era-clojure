@@ -1,5 +1,5 @@
 (ns era.test
-  (:require [clojure.test :refer :all]
+  (:require [clojure.test #?(:clj :refer :cljs :refer-macros) [deftest is testing]]
             [era.core :as era]
             [era.format :as format]))
 
@@ -80,4 +80,4 @@
     (is (= (:medium locales) (format/locale date)))))
 
 (deftest test-format-locale-missing-style
-  (is (thrown? java.lang.AssertionError (format/locale date :missing))))
+  (is (thrown? #?(:clj java.lang.AssertionError :cljs js/Error) (format/locale date :missing))))
