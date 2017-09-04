@@ -19,6 +19,32 @@
   #?(:clj  (OffsetDateTime/now)
      :cljs (js/Date.)))
 
+(def ^:private offset-re #"([-+])(\d\d)(?::?(\d\d))?$")
+
+(defn- parse-string
+  "JVM: Parse `s` as a java.time.OffsetDateTime.
+  CLJS: Ensure that `s` is a string that can be parsed by the
+  built-in Date string parser, according to the spec:
+  https://www.ecma-international.org/ecma-262/5.1/#sec-15.9.4.2
+  to ensure cross-browser consistency, and return a js/Date."
+  [value]
+  #?(:clj  (OffsetDateTime/parse value)
+     :cljs (let [; remove the timezone declaration, if suffixed
+                 ; TODO: interpret the timezone, since it takes precedence
+                 ;       over the offset, if provided, in java.time
+                 s-with-offset (str/replace-first value #"\[[^\[\]]+\]$" "")
+                 ; replace the ±hh:mm offset with Z, if suffixed,
+                 ; in which case we re-find that offset and use it later
+                 s (str/replace-first s-with-offset offset-re "Z")
+                 millis (js/Date.parse s)]
+             (if-let [[_ sign hh mm] (re-find offset-re s-with-offset)]
+               (let [multiplier (if (= sign "+") -1 1)
+                     offset-millis (* multiplier
+                                      (+ (* 3600000 (js/parseInt hh 10))
+                                         (* 60000 (js/parseInt (or mm "00") 10))))]
+                 (js/Date. (+ millis offset-millis)))
+               (js/Date. millis)))))
+
 (defprotocol Coercions
   "Coerce between various Date types. Many of these use Instant as a lingua-franca,
   converting to Instant where needed, first, and then calling the same function again."
@@ -91,20 +117,19 @@
   #?(:clj  String
      :cljs string)
   (->OffsetDateTime [this]
-    #?(:clj  (OffsetDateTime/parse this)
-       :cljs (js/Date. this)))
+    (parse-string this))
   (->ZonedDateTime [this]
     #?(:clj  (ZonedDateTime/parse this)
-       :cljs (js/Date. this)))
+       :cljs (parse-string this)))
   (->Instant [this]
     #?(:clj  (Instant/parse this)
-       :cljs (js/Date. this)))
+       :cljs (parse-string this)))
   (->Timestamp [this]
     #?(:clj  (->Timestamp (->Instant this))
-       :cljs (js/Date. this)))
+       :cljs (parse-string this)))
   (->Date [this]
     #?(:clj  (->Date (->Instant this))
-       :cljs (js/Date. this)))
+       :cljs (parse-string this)))
 
   ;; from nil to ... (it doesn't matter, they all return nil)
   nil
