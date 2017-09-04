@@ -19,7 +19,7 @@
 (def date #inst "2001-02-03T04:05:06.007Z")
 
 (def dates
-  (doseq [[coercion _] coercions]
+  (for [[coercion _] coercions]
     (coercion date)))
 
 (deftest test-cross
