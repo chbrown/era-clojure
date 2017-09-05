@@ -1,14 +1,20 @@
 (ns era.format
   (:require [era.core :as core])
-  #?(:clj (:import (java.time Instant OffsetDateTime ZonedDateTime ZoneId) ; required for some reason
+  #?(:clj (:import (java.time Instant OffsetDateTime ZonedDateTime ZoneId ZoneOffset) ; required for some reason
                    (java.time.format DateTimeFormatter FormatStyle))))
 
+#?(:clj
+  (def ^:private iso-formatter
+    "Formatter with output as 'YYYY-MM-DDTHH:mm:ss.sssZ', like js/Date#toISOString"
+    (-> (DateTimeFormatter/ofPattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'SSSZZZZZ")
+        (.withZone ZoneOffset/UTC))))
+
 (defn iso
-  "Convert value to a Java(Script) date and format as a standard ISO-8601 string in UTC."
+  "Convert value to a Java(Script) date and format as a standard 24-character ISO-8601 string in UTC."
   [value]
   ; maybe return unchanged if String?
   (when value
-    #?(:clj  (.toString (core/->Instant value))
+    #?(:clj  (.format iso-formatter (core/->Instant value))
        :cljs (.toISOString (core/->OffsetDateTime value)))))
 
 (def ^:private format-styles
