@@ -78,7 +78,9 @@
 
 (deftest test-format-iso
   (doseq [date dates]
-    (is (= "2001-02-03T04:05:06.007Z" (format/iso date)))))
+    (is (= "2001-02-03T04:05:06.007Z" (format/iso date))))
+  (testing "nanosecond truncation"
+    (is (= "2001-02-03T04:05:06.007Z" (format/iso "2001-02-03T04:05:06.007008009Z")))))
 
 (deftest test-format-locale
   (doseq [date dates
