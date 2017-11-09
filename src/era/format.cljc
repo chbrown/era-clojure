@@ -4,7 +4,7 @@
                    (java.time.format DateTimeFormatter FormatStyle))))
 
 #?(:clj
-  (def ^:private iso-formatter
+  (def ^:private ^DateTimeFormatter iso-formatter
     "Formatter with output as 'YYYY-MM-DDTHH:mm:ss.sssZ', like js/Date#toISOString"
     (-> (DateTimeFormatter/ofPattern "uuuu'-'MM'-'dd'T'HH':'mm':'ss'.'SSSZZZZZ")
         (.withZone ZoneOffset/UTC))))
